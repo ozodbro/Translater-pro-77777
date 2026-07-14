@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Tarjimon (Arab-Uzb)</title>
+    <style>
+        /* Futuristik quyuq va yorqin dizayn */
+        body {
+            background: radial-gradient(circle, #1a1f36 0%, #0a0c16 100%);
+            font-family: 'Poppins', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .neon-box {
+            width: 100%;
+            max-width: 450px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.1), inset 0 0 15px rgba(0, 255, 204, 0.05);
+            color: #fff;
+        }
+
+        h2 {
+            text-align: center;
+            margin-top: 0;
+            font-size: 24px;
+            letter-spacing: 1px;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+        }
+
+        /* Tillar tanlash qismi */
+        .lang-select-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        select {
+            background: none;
+            border: none;
+            color: #00ffcc;
+            font-size: 16px;
+            font-weight: bold;
+            outline: none;
+            cursor: pointer;
+        }
+
+        select option {
+            background: #1a1f36;
+            color: #fff;
+        }
+
+        .arrow {
+            color: #ff007f;
+            font-size: 20px;
+            text-shadow: 0 0 8px rgba(255, 0, 127, 0.6);
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 16px;
+            padding: 15px;
+            box-sizing: border-box;
+            border-radius: 10px;
+            resize: none;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        textarea:focus {
+            border-color: #00ffcc;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.3);
+        }
+
+        /* Arabcha yozuvni o'ngga surish */
+        .rtl-mode {
+            direction: rtl;
+            text-align: right;
+            font-size: 20px;
+        }
+
+        /* Neon tugma */
+        .btn-neon {
+            width: 100%;
+            height: 50px;
+            background: linear-gradient(45deg, #00ffcc, #0077ff);
+            color: white;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+            transition: all 0.3s;
+        }
+
+        .btn-neon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 255, 204, 0.7);
+        }
+
+        .btn-neon:active {
+            transform: translateY(1px);
+        }
+
+        .result-title {
+            font-size: 14px;
+            color: #8892b0;
+            margin-top: 25px;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .output-box {
+            background: rgba(0, 0, 0, 0.4);
+            color: #ff007f;
+            text-shadow: 0 0 5px rgba(255, 0, 127, 0.2);
+            min-height: 80px;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            word-wrap: break-word;
+            border: 1px solid rgba(255, 0, 127, 0.2);
+            box-sizing: border-box;
+        }
+
+        .loader {
+            color: #00ffcc !important;
+            font-style: italic;
+        }
+
+        .error-msg {
+            color: #ff3333;
+            text-align: center;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="neon-box">
+        <h2>Cyber Translator</h2>
+
+        <div class="lang-select-container">
+            <select id="from-lang" onchange="adjustDirection()">
+                <option value="ar">Arabcha</option>
+                <option value="uz">O'zbekcha</option>
+            </select>
+            <span class="arrow">⇆</span>
+            <select id="to-lang" onchange="adjustDirection()">
+                <option value="uz">O'zbekcha</option>
+                <option value="ar">Arabcha</option>
+            </select>
+        </div>
+        
+        <textarea id="input-text" class="rtl-mode" placeholder="Matnni shu yerga yozing..."></textarea>
+        
+        <button class="btn-neon" onclick="startTranslation()">Tarjima qilish</button>
+        
+        <span class="result-title">Natija:</span>
+        <div id="output-text" class="output-box"></div>
+        
+        <div id="error-box" class="error-msg"></div>
+    </div>
+
+    <script>
+        const inputText = document.getElementById('input-text');
+        const outputText = document.getElementById('output-text');
+        const fromLang = document.getElementById('from-lang');
+        const toLang = document.getElementById('to-lang');
+        const errorBox = document.getElementById('error-box');
+
+        // Tillar o'zgarganda matn yo'nalishini avtomat to'g'rilash
+        function adjustDirection() {
+            if (fromLang.value === 'ar') {
+                inputText.classList.add('rtl-mode');
+            } else {
+                inputText.classList.remove('rtl-mode');
+            }
+
+            if (toLang.value === 'ar') {
+                outputText.classList.add('rtl-mode');
+            } else {
+                outputText.classList.remove('rtl-mode');
+            }
+            errorBox.innerText = "";
+        }
+
+        // Google Translate API orqali tarjima qilish funksiyasi
+        async function startTranslation() {
+            const text = inputText.value.trim();
+            errorBox.innerText = "";
+
+            if (!text) {
+                errorBox.innerText = "Iltimos, biror narsa yozing!";
+                outputText.innerText = "";
+                return;
+            }
+
+            if (fromLang.value === toLang.value) {
+                errorBox.innerText = "Iltimos, har xil tillarni tanlang!";
+                return;
+            }
+
+            outputText.innerHTML = '<span class="loader">Kiber-tizim tarjima qilmoqda...</span>';
+
+            try {
+                const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${fromLang.value}&tl=${toLang.value}&dt=t&q=${encodeURIComponent(text)}`;
+                const response = await fetch(url);
+                
+                if (!response.ok) throw new Error();
+
+                const data = await response.json();
+                
+                if (data && data[0] && data[0][0]) {
+                    outputText.innerText = data[0][0][0];
+                } else {
+                    outputText.innerText = "Tarjima aniqlanmadi.";
+                }
+            } catch (error) {
+                outputText.innerText = "";
+                errorBox.innerText = "Tarjima xizmati ulanmadi. Internetni tekshiring.";
+            }
+        }
+
+        // Enter tugmasi orqali tezkor tarjima qilish
+        inputText.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                startTranslation();
+            }
+        });
+    </script>
+
+</body>
+</html>
+
